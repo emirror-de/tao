@@ -16,7 +16,7 @@ impl SystemTray {
   ) -> Result<(), OsError> {
     use crate::menu::MenuItem;
     use gtk::prelude::*;
-    use libappindicator::{AppIndicator, AppIndicatorStatus};
+    use libayatana_appindicator::{AppIndicator, AppIndicatorStatus};
 
     use super::window::{WindowId, WindowRequest};
 
