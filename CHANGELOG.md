@@ -1,5 +1,12 @@
 # Changelog
 
+## \[0.2.7]
+
+- Implement all control flow variants
+  - [16e2ac06](https://github.com/tauri-apps/tao/commit/16e2ac06c2f0c180a17fb8021005dec51a57af49) Add change file on 2021-05-19
+- Add checks before focusing window
+  - [1bd3b1c0](https://github.com/tauri-apps/tao/commit/1bd3b1c0fbdbf4e8a9bfade34a7e217f26114859) Add change file on 2021-05-22
+
 ## \[0.2.6]
 
 - Add `is_decorated` getter on `Window`
