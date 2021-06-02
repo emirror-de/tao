@@ -517,6 +517,11 @@ impl Window {
     false
   }
 
+  pub fn is_visible(&self) -> bool {
+    log::warn!("`Window::is_visible` is ignored on android");
+    false
+  }
+
   pub fn is_resizable(&self) -> bool {
     warn!("`Window::is_resizable` is ignored on android");
     false
@@ -544,6 +549,8 @@ impl Window {
   pub fn set_ime_position(&self, _position: Position) {}
 
   pub fn request_user_attention(&self, _request_type: Option<window::UserAttentionType>) {}
+
+  pub fn set_skip_taskbar(&self, _skip: bool) {}
 
   pub fn set_cursor_icon(&self, _: window::CursorIcon) {}
 

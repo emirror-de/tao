@@ -210,6 +210,11 @@ impl Inner {
     false
   }
 
+  pub fn is_visible(&self) -> bool {
+    log::warn!("`Window::is_visible` is ignored on iOS");
+    false
+  }
+
   pub fn is_resizable(&self) -> bool {
     warn!("`Window::is_resizable` is ignored on iOS");
     false
@@ -290,6 +295,10 @@ impl Inner {
 
   pub fn set_ime_position(&self, _position: Position) {
     warn!("`Window::set_ime_position` is ignored on iOS")
+  }
+
+  pub fn set_skip_taskbar(&self, _skip: bool) {
+    warn!("`Window::set_skip_taskbar` is ignored on iOS")
   }
 
   pub fn request_user_attention(&self, _request_type: Option<UserAttentionType>) {

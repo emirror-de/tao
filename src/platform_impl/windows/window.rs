@@ -21,17 +21,19 @@ use winapi::{
     windef::{HWND, POINT, POINTS, RECT},
   },
   um::{
-    combaseapi, dwmapi,
+    combaseapi::{self, CoCreateInstance, CLSCTX_SERVER},
+    dwmapi,
     imm::{CFS_POINT, COMPOSITIONFORM},
     libloaderapi,
     objbase::COINIT_APARTMENTTHREADED,
     ole2,
     oleidl::LPDROPTARGET,
-    shobjidl_core::{CLSID_TaskbarList, ITaskbarList2},
+    shobjidl_core::{CLSID_TaskbarList, ITaskbarList, ITaskbarList2},
     wingdi::{CreateRectRgn, DeleteObject},
     winnt::{LPCWSTR, SHORT},
     winuser,
   },
+  Interface,
 };
 
 use crate::{
@@ -442,9 +444,15 @@ impl Window {
     window_state.window_flags.contains(WindowFlags::RESIZABLE)
   }
 
+  #[inline]
   pub fn is_decorated(&self) -> bool {
     let window_state = self.window_state.lock();
     window_state.window_flags.contains(WindowFlags::DECORATIONS)
+  }
+
+  #[inline]
+  pub fn is_visible(&self) -> bool {
+    util::is_visible(self.window.0)
   }
 
   #[inline]
@@ -710,6 +718,26 @@ impl Window {
   pub fn theme(&self) -> Theme {
     self.window_state.lock().current_theme
   }
+
+  #[inline]
+  pub fn set_skip_taskbar(&self, skip: bool) {
+    unsafe {
+      let mut taskbar_list: *mut ITaskbarList = std::mem::zeroed();
+      CoCreateInstance(
+        &CLSID_TaskbarList,
+        ptr::null_mut(),
+        CLSCTX_SERVER,
+        &ITaskbarList::uuidof(),
+        &mut taskbar_list as *mut _ as *mut _,
+      );
+      if skip {
+        (*taskbar_list).DeleteTab(self.hwnd());
+      } else {
+        (*taskbar_list).AddTab(self.hwnd());
+      }
+      (*taskbar_list).Release();
+    }
+  }
 }
 
 impl Drop for Window {
@@ -890,6 +918,8 @@ unsafe fn init<T: 'static>(
     force_window_active(win.window.0);
   }
 
+  win.set_skip_taskbar(attributes.skip_taskbar);
+
   Ok(win)
 }
 
@@ -972,7 +1002,7 @@ unsafe fn taskbar_mark_fullscreen(handle: HWND, fullscreen: bool) {
     let mut task_bar_list = task_bar_list_ptr.get();
 
     if task_bar_list == ptr::null_mut() {
-      use winapi::{shared::winerror::S_OK, Interface};
+      use winapi::shared::winerror::S_OK;
 
       let hr = combaseapi::CoCreateInstance(
         &CLSID_TaskbarList,

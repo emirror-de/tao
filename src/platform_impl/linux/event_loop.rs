@@ -248,7 +248,7 @@ impl<T: 'static> EventLoop<T> {
                 window.set_urgency_hint(true)
               }
             }
-            WindowRequest::SkipTaskbar => window.set_skip_taskbar_hint(true),
+            WindowRequest::SetSkipTaskbar(skip) => window.set_skip_taskbar_hint(skip),
             WindowRequest::CursorIcon(cursor) => {
               if let Some(gdk_window) = window.get_window() {
                 let display = window.get_display();
@@ -632,7 +632,10 @@ impl<T: 'static> EventLoop<T> {
                 _ => callback(event, &window_target, &mut control_flow),
               }
             }
-            callback(Event::MainEventsCleared, &window_target, &mut control_flow);
+
+            if control_flow != ControlFlow::Exit {
+              callback(Event::MainEventsCleared, &window_target, &mut control_flow);
+            }
           }
         }
         ControlFlow::WaitUntil(requested_resume) => {
@@ -654,7 +657,10 @@ impl<T: 'static> EventLoop<T> {
                 _ => callback(event, &window_target, &mut control_flow),
               }
             }
-            callback(Event::MainEventsCleared, &window_target, &mut control_flow);
+
+            if control_flow != ControlFlow::Exit {
+              callback(Event::MainEventsCleared, &window_target, &mut control_flow);
+            }
           } else if !e.is_empty() {
             callback(
               Event::NewEvents(StartCause::WaitCancelled {
@@ -671,7 +677,10 @@ impl<T: 'static> EventLoop<T> {
                 _ => callback(event, &window_target, &mut control_flow),
               }
             }
-            callback(Event::MainEventsCleared, &window_target, &mut control_flow);
+
+            if control_flow != ControlFlow::Exit {
+              callback(Event::MainEventsCleared, &window_target, &mut control_flow);
+            }
           }
         }
         ControlFlow::Poll => {

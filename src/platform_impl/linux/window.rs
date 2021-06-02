@@ -246,6 +246,8 @@ impl Window {
       window.hide();
     }
 
+    window.set_skip_taskbar_hint(attributes.skip_taskbar);
+
     let w_pos = window.get_position();
     let position: Rc<(AtomicI32, AtomicI32)> = Rc::new((w_pos.0.into(), w_pos.1.into()));
     let position_clone = position.clone();
@@ -483,6 +485,11 @@ impl Window {
     self.window.get_decorated()
   }
 
+  #[inline]
+  pub fn is_visible(&self) -> bool {
+    self.window.is_visible()
+  }
+
   pub fn drag_window(&self) -> Result<(), ExternalError> {
     if let Err(e) = self
       .window_requests_tx
@@ -595,10 +602,10 @@ impl Window {
     todo!()
   }
 
-  pub fn skip_taskbar(&self) {
+  pub fn set_skip_taskbar(&self, skip: bool) {
     if let Err(e) = self
       .window_requests_tx
-      .send((self.window_id, WindowRequest::SkipTaskbar))
+      .send((self.window_id, WindowRequest::SetSkipTaskbar(skip)))
     {
       log::warn!("Fail to send skip taskbar request: {}", e);
     }
@@ -627,7 +634,7 @@ pub enum WindowRequest {
   AlwaysOnTop(bool),
   WindowIcon(Option<Icon>),
   UserAttention(Option<UserAttentionType>),
-  SkipTaskbar,
+  SetSkipTaskbar(bool),
   CursorIcon(Option<CursorIcon>),
   WireUpEvents,
   Redraw,
